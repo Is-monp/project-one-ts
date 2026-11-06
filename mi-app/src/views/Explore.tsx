@@ -3,7 +3,6 @@ import type { ChampionData } from "../api";
 import { useCampeones } from "../hooks/usechampions";
 import ExplorarHeader, { type RolFiltro } from "../components/ExplorarHeader";
 import ChampionCard from "../components/ChampionCard";
-import ChampionDetailModal from "../components/ChampionDetailModal";
 import Toast from "../components/Toast";
 
 type ExploreProps = {
@@ -17,10 +16,8 @@ function Explore({ favoritos, onToggleFavorito }: ExploreProps) {
   const [busqueda, setBusqueda] = useState("");
   const [rol, setRol] = useState<RolFiltro>("todos");
   const [toast, setToast] = useState<string | null>(null);
-  const [seleccionado, setSeleccionado] = useState<ChampionData | null>(null);
 
   const cerrarToast = useCallback(() => setToast(null), []);
-  const cerrarModal = useCallback(() => setSeleccionado(null), []);
 
   const filtrados = useMemo(() => {
     const q = busqueda.toLowerCase();
@@ -41,7 +38,7 @@ function Explore({ favoritos, onToggleFavorito }: ExploreProps) {
         : `${campeon.name} agregado a favoritos`
     );
   };
-  console.log("seleccionado:", seleccionado?.name ?? null);
+
   return (
     <main className="flex-1 bg-[#010A13]">
       <ExplorarHeader
@@ -79,24 +76,14 @@ function Explore({ favoritos, onToggleFavorito }: ExploreProps) {
               campeon={c}
               esFavorito={favoritos.includes(c.id)}
               onToggleFavorito={handleToggle}
-              onSeleccionar={setSeleccionado}
             />
           ))}
         </div>
       </section>
 
-      <ChampionDetailModal
-        campeon={seleccionado}
-        onClose={cerrarModal}
-        esFavorito={seleccionado ? favoritos.includes(seleccionado.id) : false}
-        onToggleFavorito={handleToggle}
-      />
-
       {toast && <Toast mensaje={toast} onCerrar={cerrarToast} />}
-      
     </main>
   );
 }
-
 
 export default Explore;

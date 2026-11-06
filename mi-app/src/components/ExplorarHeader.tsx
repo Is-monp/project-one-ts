@@ -74,7 +74,10 @@ function ExplorarHeader({
             id="buscar-campeon"
             type="search"
             value={texto}
-            onChange={(e) => setTexto(e.target.value)}
+           onChange={(e) => {
+              setTexto(e.target.value);
+              onBuscar(e.target.value);
+            }}
             placeholder="Buscar campeón..."
             className="w-full bg-transparent px-4 py-2.5 text-sm text-[#F0E6D2] placeholder:text-[#A09B8C]/70 outline-none"
           />

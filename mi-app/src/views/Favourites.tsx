@@ -2,9 +2,10 @@ import { useCallback, useState } from "react";
 import type { ChampionData } from "../api";
 import { useCampeones } from "../hooks/usechampions";
 import ChampionCard from "../components/ChampionCard";
-import ChampionDetailModal from "../components/ChampionDetailModal";
-//import ConfirmarQuitarDialog from "../components/ConfirmarQuitarDialog"; descomenta esto para ver versión super etica
+//import ConfirmarQuitarDialog from "../components/ConfirmarQuitarDialog";
+// Para usar la versión sin dark pattern, cambia por la de arriba
 import QuitarFavoritoDarkDialog from "../components/QuitarFavoritoDarkDialog";
+
 type FavouritesProps = {
   favoritos: string[];
   onToggleFavorito: (id: string) => void;
@@ -12,19 +13,18 @@ type FavouritesProps = {
 
 function Favourites({ favoritos, onToggleFavorito }: FavouritesProps) {
   const { campeones, cargando, error } = useCampeones();
-  const [seleccionado, setSeleccionado] = useState<ChampionData | null>(null);
   const [porQuitar, setPorQuitar] = useState<ChampionData | null>(null);
 
-  const cerrarModal = useCallback(() => setSeleccionado(null), []);
   const cancelarQuitar = useCallback(() => setPorQuitar(null), []);
 
   const lista = campeones.filter((c) => favoritos.includes(c.id));
+
+  // Aquí todos son favoritos, así que cualquier toggle significa "quitar": pedimos confirmación
   const pedirConfirmacion = (campeon: ChampionData) => setPorQuitar(campeon);
 
   const confirmarQuitar = (campeon: ChampionData) => {
     onToggleFavorito(campeon.id);
     setPorQuitar(null);
-    if (seleccionado?.id === campeon.id) setSeleccionado(null);
   };
 
   return (
@@ -62,20 +62,12 @@ function Favourites({ favoritos, onToggleFavorito }: FavouritesProps) {
               campeon={c}
               esFavorito
               onToggleFavorito={pedirConfirmacion}
-              onSeleccionar={setSeleccionado}
             />
           ))}
         </div>
       </div>
 
-      <ChampionDetailModal
-        campeon={seleccionado}
-        onClose={cerrarModal}
-        esFavorito={seleccionado ? favoritos.includes(seleccionado.id) : false}
-        onToggleFavorito={pedirConfirmacion}
-      />
-
-      <QuitarFavoritoDarkDialog //aqui cambiar a ConfirmarQuitarDialog para version etica
+      <QuitarFavoritoDarkDialog
         campeon={porQuitar}
         onConfirmar={confirmarQuitar}
         onCancelar={cancelarQuitar}

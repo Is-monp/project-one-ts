@@ -1,17 +1,16 @@
+import { Link } from "react-router";
 import { urlArteCarga, type ChampionData } from "../api";
 
 type ChampionCardProps = {
   campeon: ChampionData;
   esFavorito: boolean;
   onToggleFavorito: (campeon: ChampionData) => void;
-  onSeleccionar: (campeon: ChampionData) => void;
 };
 
 function ChampionCard({
   campeon,
   esFavorito,
   onToggleFavorito,
-  onSeleccionar,
 }: ChampionCardProps) {
   return (
     <article className="group relative overflow-hidden rounded-sm border border-[#C8AA6E]/30 bg-[#0A1428] transition-all duration-300 hover:-translate-y-1 hover:border-[#0AC8B9] hover:shadow-[0_0_18px_rgba(10,200,185,0.35)]">
@@ -27,15 +26,11 @@ function ChampionCard({
           className="absolute inset-0 bg-linear-to-t from-[#010A13] via-[#010A13]/30 to-transparent"
         />
 
-        {/* Botón invisible que abre el modal de detalle */}
-        <button
-          type="button"
-          onClick={() => {
-            console.log("click en card:", campeon.name);
-            onSeleccionar(campeon);
-          }}
+        {/* Enlace invisible que cubre la tarjeta y lleva a la página de detalle */}
+        <Link
+          to={`/explorar/${campeon.id}`}
           aria-label={`Ver detalles de ${campeon.name}`}
-          className="absolute inset-0 z-10 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0AC8B9]"
+          className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0AC8B9]"
         />
 
         <button

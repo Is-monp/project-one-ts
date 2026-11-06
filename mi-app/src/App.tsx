@@ -6,6 +6,7 @@ import Hero from "./views/Hero";
 import Favourites from "./views/Favourites";
 import Contact from "./views/Contact";
 import Explore from "./views/Explore";
+import Detail from "./views/Detail";
 
 export default function App() {
   const [favoritos, setFavoritos] = useState<string[]>(() => {
@@ -43,6 +44,8 @@ export default function App() {
           }
         />
         <Route path="/contacto" element={<Contact />} />
+        <Route path="/explorar" element={<Explore favoritos={favoritos} onToggleFavorito={toggleFavorito} />} />
+        <Route path="/explorar/:id" element={<Detail favoritos={favoritos} onToggleFavorito={toggleFavorito} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>

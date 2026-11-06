@@ -1,3 +1,10 @@
+export interface ChampionSpell {
+  id: string;
+  name: string;
+  description: string;
+  image: { full: string };
+}
+
 export interface ChampionData {
   id: string;
   key: string;
@@ -22,6 +29,11 @@ export interface ChampionData {
   tags: string[];
   partype: string;
   stats: Record<string, number>;
+  lore?: string;
+  allytips?: string[];
+  enemytips?: string[];
+  spells?: ChampionSpell[];
+  passive?: { name: string; description: string; image: { full: string } };
 }
 
 export interface ChampionListResponse {
@@ -51,6 +63,12 @@ export const urlSplash = (id: string) =>
 //Icono cuadrado (sí depende de la versión)
 export const urlIcono = (archivo: string) =>
   `${CDN}/${VERSION}/img/champion/${archivo}`;
+
+export const urlHechizo = (archivo: string) =>
+  `${CDN}/${VERSION}/img/spell/${archivo}`;
+
+export const urlPasiva = (archivo: string) =>
+  `${CDN}/${VERSION}/img/passive/${archivo}`;
 
 // Obtener todos los campeones
 export async function obtenerCampeones(signal?: AbortSignal): Promise<ChampionListResponse> {
