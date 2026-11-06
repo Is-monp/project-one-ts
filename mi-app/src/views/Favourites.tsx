@@ -3,6 +3,7 @@ import type { ChampionData } from "../api";
 import { useCampeones } from "../hooks/usechampions";
 import ChampionCard from "../components/ChampionCard";
 import ChampionDetailModal from "../components/ChampionDetailModal";
+import ConfirmarQuitarDialog from "../components/ConfirmarQuitarDialog";
 
 type FavouritesProps = {
   favoritos: string[];
@@ -12,12 +13,21 @@ type FavouritesProps = {
 function Favourites({ favoritos, onToggleFavorito }: FavouritesProps) {
   const { campeones, cargando, error } = useCampeones();
   const [seleccionado, setSeleccionado] = useState<ChampionData | null>(null);
+  const [porQuitar, setPorQuitar] = useState<ChampionData | null>(null);
 
   const cerrarModal = useCallback(() => setSeleccionado(null), []);
+  const cancelarQuitar = useCallback(() => setPorQuitar(null), []);
 
   const lista = campeones.filter((c) => favoritos.includes(c.id));
 
-  const handleToggle = (campeon: ChampionData) => onToggleFavorito(campeon.id);
+  // Aquí todos son favoritos, así que cualquier toggle significa "quitar": pedimos confirmación
+  const pedirConfirmacion = (campeon: ChampionData) => setPorQuitar(campeon);
+
+  const confirmarQuitar = (campeon: ChampionData) => {
+    onToggleFavorito(campeon.id);
+    setPorQuitar(null);
+    if (seleccionado?.id === campeon.id) setSeleccionado(null);
+  };
 
   return (
     <main className="flex-1 bg-[#010A13] px-6 py-10">
@@ -53,7 +63,7 @@ function Favourites({ favoritos, onToggleFavorito }: FavouritesProps) {
               key={c.id}
               campeon={c}
               esFavorito
-              onToggleFavorito={handleToggle}
+              onToggleFavorito={pedirConfirmacion}
               onSeleccionar={setSeleccionado}
             />
           ))}
@@ -64,7 +74,13 @@ function Favourites({ favoritos, onToggleFavorito }: FavouritesProps) {
         campeon={seleccionado}
         onClose={cerrarModal}
         esFavorito={seleccionado ? favoritos.includes(seleccionado.id) : false}
-        onToggleFavorito={handleToggle}
+        onToggleFavorito={pedirConfirmacion}
+      />
+
+      <ConfirmarQuitarDialog
+        campeon={porQuitar}
+        onConfirmar={confirmarQuitar}
+        onCancelar={cancelarQuitar}
       />
     </main>
   );
