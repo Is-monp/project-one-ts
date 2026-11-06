@@ -5,7 +5,7 @@ import { useCampeon } from "../hooks/useChampion";
 import { useToast } from "../hooks/useToast";
 import StatBar from "../components/StatBar";
 import Toast from "../components/Toast";
-import ConfirmarQuitarDialog from "../components/ConfirmarQuitarDialog";
+import QuitarFavoritoDarkDialog from "../components/QuitarFavoritoDarkDialog";
 
 type DetailProps = {
   favoritos: string[];
@@ -271,7 +271,7 @@ function Detail({ favoritos, onToggleFavorito }: DetailProps) {
         )}
       </div>
 
-      <ConfirmarQuitarDialog
+      <QuitarFavoritoDarkDialog
         campeon={porQuitar}
         onConfirmar={confirmarQuitar}
         onCancelar={cancelarQuitar}
