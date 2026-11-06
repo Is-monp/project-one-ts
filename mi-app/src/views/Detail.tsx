@@ -1,10 +1,11 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { urlHechizo, urlPasiva, urlSplash, type ChampionData } from "../api";
 import { useCampeon } from "../hooks/useChampion";
+import { useToast } from "../hooks/useToast";
 import StatBar from "../components/StatBar";
 import Toast from "../components/Toast";
-import QuitarFavoritoDarkDialog from "../components/QuitarFavoritoDarkDialog";
+import ConfirmarQuitarDialog from "../components/ConfirmarQuitarDialog";
 
 type DetailProps = {
   favoritos: string[];
@@ -22,28 +23,35 @@ const volverClass =
   "inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#C8AA6E] transition-colors hover:text-[#0AC8B9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0AC8B9]";
 
 function Detail({ favoritos, onToggleFavorito }: DetailProps) {
-  //explorar/:id
+  // Ruta dinámica: /explorar/:id
   const { id } = useParams<{ id: string }>();
   const { campeon, cargando, error } = useCampeon(id);
-  const [toast, setToast] = useState<string | null>(null);
+  const { toast, mostrarToast, cerrarToast } = useToast();
+
   const [porQuitar, setPorQuitar] = useState<ChampionData | null>(null);
-  const cerrarToast = useCallback(() => setToast(null), []);
   const cancelarQuitar = useCallback(() => setPorQuitar(null), []);
+
+  // Si falla la carga, además del mensaje en pantalla mostramos un toast de error
+  useEffect(() => {
+    if (error) mostrarToast(error, "error");
+  }, [error, mostrarToast]);
+
   const esFavorito = campeon ? favoritos.includes(campeon.id) : false;
 
+  // Agregar es directo (toast de éxito); quitar pide confirmación
   const handleFavorito = (c: ChampionData) => {
     if (favoritos.includes(c.id)) {
       setPorQuitar(c);
     } else {
       onToggleFavorito(c.id);
-      setToast(`${c.name} agregado a favoritos`);
+      mostrarToast(`${c.name} agregado a favoritos`, "exito");
     }
   };
 
   const confirmarQuitar = (c: ChampionData) => {
     onToggleFavorito(c.id);
     setPorQuitar(null);
-    setToast(`${c.name} eliminado de favoritos`);
+    mostrarToast(`${c.name} eliminado de favoritos`, "info");
   };
 
   return (
@@ -180,7 +188,10 @@ function Detail({ favoritos, onToggleFavorito }: DetailProps) {
 
                 {((campeon.allytips?.length ?? 0) > 0 ||
                   (campeon.enemytips?.length ?? 0) > 0) && (
-                  <section aria-labelledby="titulo-consejos" className="grid gap-4 sm:grid-cols-2">
+                  <section
+                    aria-labelledby="titulo-consejos"
+                    className="grid gap-4 sm:grid-cols-2"
+                  >
                     <h2 id="titulo-consejos" className="sr-only">
                       Consejos
                     </h2>
@@ -260,13 +271,20 @@ function Detail({ favoritos, onToggleFavorito }: DetailProps) {
         )}
       </div>
 
-      <QuitarFavoritoDarkDialog
+      <ConfirmarQuitarDialog
         campeon={porQuitar}
         onConfirmar={confirmarQuitar}
         onCancelar={cancelarQuitar}
       />
 
-      {toast && <Toast mensaje={toast} onCerrar={cerrarToast} />}
+      {toast && (
+        <Toast
+          key={toast.id}
+          mensaje={toast.mensaje}
+          tipo={toast.tipo}
+          onCerrar={cerrarToast}
+        />
+      )}
     </main>
   );
 }

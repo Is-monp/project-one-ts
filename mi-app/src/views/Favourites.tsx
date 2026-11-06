@@ -1,9 +1,12 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ChampionData } from "../api";
 import { useCampeones } from "../hooks/usechampions";
+import { useToast } from "../hooks/useToast";
 import ChampionCard from "../components/ChampionCard";
+// Para usar la versión sin dark pattern cambia por:
 //import ConfirmarQuitarDialog from "../components/ConfirmarQuitarDialog";
-// Para usar la versión sin dark pattern, cambia por la de arriba
+import Toast from "../components/Toast";
+
 import QuitarFavoritoDarkDialog from "../components/QuitarFavoritoDarkDialog";
 
 type FavouritesProps = {
@@ -13,9 +16,15 @@ type FavouritesProps = {
 
 function Favourites({ favoritos, onToggleFavorito }: FavouritesProps) {
   const { campeones, cargando, error } = useCampeones();
+  const { toast, mostrarToast, cerrarToast } = useToast();
   const [porQuitar, setPorQuitar] = useState<ChampionData | null>(null);
 
   const cancelarQuitar = useCallback(() => setPorQuitar(null), []);
+
+  // Si falla la carga, además del mensaje en pantalla mostramos un toast de error
+  useEffect(() => {
+    if (error) mostrarToast(error, "error");
+  }, [error, mostrarToast]);
 
   const lista = campeones.filter((c) => favoritos.includes(c.id));
 
@@ -25,6 +34,7 @@ function Favourites({ favoritos, onToggleFavorito }: FavouritesProps) {
   const confirmarQuitar = (campeon: ChampionData) => {
     onToggleFavorito(campeon.id);
     setPorQuitar(null);
+    mostrarToast(`${campeon.name} eliminado de favoritos`, "info");
   };
 
   return (
@@ -72,6 +82,15 @@ function Favourites({ favoritos, onToggleFavorito }: FavouritesProps) {
         onConfirmar={confirmarQuitar}
         onCancelar={cancelarQuitar}
       />
+
+      {toast && (
+        <Toast
+          key={toast.id}
+          mensaje={toast.mensaje}
+          tipo={toast.tipo}
+          onCerrar={cerrarToast}
+        />
+      )}
     </main>
   );
 }

@@ -1,8 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ChampionData } from "../api";
 import { useCampeones } from "../hooks/usechampions";
+import { useToast } from "../hooks/useToast";
 import ExplorarHeader, { type RolFiltro } from "../components/ExplorarHeader";
 import ChampionCard from "../components/ChampionCard";
+import QuitarfavoritoDarkDialog from "../components/QuitarFavoritoDarkDialog";
 import Toast from "../components/Toast";
 
 type ExploreProps = {
@@ -12,12 +14,18 @@ type ExploreProps = {
 
 function Explore({ favoritos, onToggleFavorito }: ExploreProps) {
   const { campeones, cargando, error } = useCampeones();
+  const { toast, mostrarToast, cerrarToast } = useToast();
 
   const [busqueda, setBusqueda] = useState("");
   const [rol, setRol] = useState<RolFiltro>("todos");
-  const [toast, setToast] = useState<string | null>(null);
+  const [porQuitar, setPorQuitar] = useState<ChampionData | null>(null);
 
-  const cerrarToast = useCallback(() => setToast(null), []);
+  const cancelarQuitar = useCallback(() => setPorQuitar(null), []);
+
+  // Si falla la carga, además del mensaje en pantalla mostramos un toast de error
+  useEffect(() => {
+    if (error) mostrarToast(error, "error");
+  }, [error, mostrarToast]);
 
   const filtrados = useMemo(() => {
     const q = busqueda.toLowerCase();
@@ -29,14 +37,20 @@ function Explore({ favoritos, onToggleFavorito }: ExploreProps) {
     });
   }, [campeones, busqueda, rol]);
 
+  // Agregar es directo (toast de éxito); quitar pide confirmación
   const handleToggle = (campeon: ChampionData) => {
-    const yaEra = favoritos.includes(campeon.id);
+    if (favoritos.includes(campeon.id)) {
+      setPorQuitar(campeon);
+    } else {
+      onToggleFavorito(campeon.id);
+      mostrarToast(`${campeon.name} agregado a favoritos`, "exito");
+    }
+  };
+
+  const confirmarQuitar = (campeon: ChampionData) => {
     onToggleFavorito(campeon.id);
-    setToast(
-      yaEra
-        ? `${campeon.name} eliminado de favoritos`
-        : `${campeon.name} agregado a favoritos`
-    );
+    setPorQuitar(null);
+    mostrarToast(`${campeon.name} eliminado de favoritos`, "info");
   };
 
   return (
@@ -81,7 +95,20 @@ function Explore({ favoritos, onToggleFavorito }: ExploreProps) {
         </div>
       </section>
 
-      {toast && <Toast mensaje={toast} onCerrar={cerrarToast} />}
+      <QuitarfavoritoDarkDialog
+        campeon={porQuitar}
+        onConfirmar={confirmarQuitar}
+        onCancelar={cancelarQuitar}
+      />
+
+      {toast && (
+        <Toast
+          key={toast.id}
+          mensaje={toast.mensaje}
+          tipo={toast.tipo}
+          onCerrar={cerrarToast}
+        />
+      )}
     </main>
   );
 }
