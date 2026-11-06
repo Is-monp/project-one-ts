@@ -45,7 +45,9 @@ const BASE_URL = `${CDN}/${VERSION}/data/en_US`;
 //Arte vertical de carga (no depende de la versión)
 export const urlArteCarga = (id: string) =>
   `${CDN}/img/champion/loading/${id}_0.jpg`;
-
+// Splash horizontal (no depende de la versión)
+export const urlSplash = (id: string) =>
+  `${CDN}/img/champion/splash/${id}_0.jpg`;
 //Icono cuadrado (sí depende de la versión)
 export const urlIcono = (archivo: string) =>
   `${CDN}/${VERSION}/img/champion/${archivo}`;
