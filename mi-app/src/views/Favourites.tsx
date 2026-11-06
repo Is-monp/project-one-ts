@@ -3,8 +3,8 @@ import type { ChampionData } from "../api";
 import { useCampeones } from "../hooks/usechampions";
 import ChampionCard from "../components/ChampionCard";
 import ChampionDetailModal from "../components/ChampionDetailModal";
-import ConfirmarQuitarDialog from "../components/ConfirmarQuitarDialog";
-
+//import ConfirmarQuitarDialog from "../components/ConfirmarQuitarDialog"; descomenta esto para ver versión super etica
+import QuitarFavoritoDarkDialog from "../components/QuitarFavoritoDarkDialog";
 type FavouritesProps = {
   favoritos: string[];
   onToggleFavorito: (id: string) => void;
@@ -19,8 +19,6 @@ function Favourites({ favoritos, onToggleFavorito }: FavouritesProps) {
   const cancelarQuitar = useCallback(() => setPorQuitar(null), []);
 
   const lista = campeones.filter((c) => favoritos.includes(c.id));
-
-  // Aquí todos son favoritos, así que cualquier toggle significa "quitar": pedimos confirmación
   const pedirConfirmacion = (campeon: ChampionData) => setPorQuitar(campeon);
 
   const confirmarQuitar = (campeon: ChampionData) => {
@@ -77,7 +75,7 @@ function Favourites({ favoritos, onToggleFavorito }: FavouritesProps) {
         onToggleFavorito={pedirConfirmacion}
       />
 
-      <ConfirmarQuitarDialog
+      <QuitarFavoritoDarkDialog //aqui cambiar a ConfirmarQuitarDialog para version etica
         campeon={porQuitar}
         onConfirmar={confirmarQuitar}
         onCancelar={cancelarQuitar}
